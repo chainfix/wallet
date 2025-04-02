@@ -142,28 +142,11 @@
                     if (accounts.length > 0) {
                         accountDiv.textContent = `已连接钱包地址: ${accounts[0]}`;
                         accountDiv.classList.add('visible');
-                    } else {
-                        accountDiv.classList.remove('visible');
                     }
                 } catch (err) {
                     console.error(err);
                 }
             }
-        }
-
-        // 监听钱包账户变更事件
-        if (typeof window.okxwallet !== 'undefined') {
-            window.okxwallet.on('accountsChanged', (accounts) => {
-                const accountDiv = document.getElementById('account');
-                if (accounts.length === 0) {
-                    // 钱包已断开连接
-                    accountDiv.classList.remove('visible');
-                } else {
-                    // 钱包已连接或切换账户
-                    accountDiv.textContent = `已连接钱包地址: ${accounts[0]}`;
-                    accountDiv.classList.add('visible');
-                }
-            });
         }
 
         // 页面加载时检查钱包状态
