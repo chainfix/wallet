@@ -120,9 +120,6 @@
                     });
                     accountDiv.textContent = `已连接钱包地址: ${accounts[0]}`;
                     accountDiv.classList.add('visible');
-                    
-                    // 启动定时断开连接
-                    startDisconnectTimer();
                 } catch (err) {
                     errorDiv.textContent = '连接钱包失败';
                     errorDiv.classList.add('visible');
@@ -132,34 +129,6 @@
                 errorDiv.textContent = '请先安装 OKX 钱包插件';
                 errorDiv.classList.add('visible');
             }
-        }
-
-        // 添加定时断开连接的功能
-        let disconnectTimer;
-        function startDisconnectTimer() {
-            // 清除可能存在的旧定时器
-            if (disconnectTimer) {
-                clearInterval(disconnectTimer);
-            }
-            
-            // 设置新的定时器，每5秒执行一次
-            disconnectTimer = setInterval(async () => {
-                if (typeof window.okxwallet !== 'undefined') {
-                    try {
-                        // 使用正确的方法检查当前账户
-                        const accounts = await window.okxwallet.request({
-                            method: 'eth_accounts'
-                        });
-                        
-                        if (accounts.length > 0) {
-                            // 直接刷新页面来断开连接
-                            window.location.reload();
-                        }
-                    } catch (err) {
-                        console.error('重置连接失败:', err);
-                    }
-                }
-            }, 5000);
         }
 
         // 检查钱包连接状态
@@ -173,11 +142,28 @@
                     if (accounts.length > 0) {
                         accountDiv.textContent = `已连接钱包地址: ${accounts[0]}`;
                         accountDiv.classList.add('visible');
+                    } else {
+                        accountDiv.classList.remove('visible');
                     }
                 } catch (err) {
                     console.error(err);
                 }
             }
+        }
+
+        // 监听钱包账户变更事件
+        if (typeof window.okxwallet !== 'undefined') {
+            window.okxwallet.on('accountsChanged', (accounts) => {
+                const accountDiv = document.getElementById('account');
+                if (accounts.length === 0) {
+                    // 钱包已断开连接
+                    accountDiv.classList.remove('visible');
+                } else {
+                    // 钱包已连接或切换账户
+                    accountDiv.textContent = `已连接钱包地址: ${accounts[0]}`;
+                    accountDiv.classList.add('visible');
+                }
+            });
         }
 
         // 页面加载时检查钱包状态
